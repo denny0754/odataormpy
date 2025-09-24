@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "odata_orm"
+version = "0.1.0"
+description = "A lightweight dynamic ORM for OData services in Python"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    { name = "Diego Vaccher", email = "dvaccher99@gmail.com" }
+]
+license = { text = "MIT" }
+keywords = ["odata", "orm", "python", "dynamic"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "requests>=2.32"
+]
+[project.urls]
+Homepage = "https://github.com/denny0754/odataormpy"
+
+[tool.setuptools.packages.find]
+where = ["."]
