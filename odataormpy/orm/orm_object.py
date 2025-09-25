@@ -16,7 +16,7 @@ from .orm_expression import ORMExpression
 from .orm import ORM
 from odataormpy.exception import ORMExpressionException, ORMRuntimeException
 
-class ORMObject:
+class ORMObject: # pylint: disable=too-many-instance-attributes
     """Generic ORM Object. Helps in querying, creating or updating entities.
     Dynamically generated for each individual entity record when an execution is performed.
     """
@@ -101,6 +101,8 @@ class ORMObject:
             params["$select"] = self.__select
         if self.__format:
             params["$format"] = self.__format
+        if self.__top:
+            params["$top"] = self.__top
         return params
 
     def execute(self) -> Union[list["ORMObject"], "ORMObject"]:
@@ -124,8 +126,7 @@ class ORMObject:
         )
 
         try:
-            json_data = response.json()
-            obj_data = json_data.get('d', { }).get('results', [ ])
+            obj_data = response.json().get('d', { }).get('results', [ ])
             if len(obj_data) == 0:
                 return []
 
@@ -147,7 +148,6 @@ class ORMObject:
         :return:
         """
         #TODO: Implement update logic
-        pass
 
     def create(self) -> None:
         """Creates a new entity record.
@@ -155,7 +155,6 @@ class ORMObject:
         :return:
         """
         #TODO: Implement creation logic
-        pass
 
     @staticmethod
     def __from_json(orm_session: ORM, entity: str, json_data: dict) -> "ORMObject":

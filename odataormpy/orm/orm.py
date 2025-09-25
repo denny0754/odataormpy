@@ -10,6 +10,7 @@ Change Log:
 """
 
 from functools import lru_cache
+import xml.etree.ElementTree as ET
 
 from odataormpy.session import ORMSession
 
@@ -56,7 +57,6 @@ class ORM:
         :param service_name: Name of the service requested.
         :return:
         """
-        import xml.etree.ElementTree as ET
         #TODO: Update the structure of the service metadata
         #TODO: Use `lazy_load` parameter to disable loading of metadata and store them
         #      as lzma payloads to save space.
@@ -84,17 +84,14 @@ class ORM:
             #       and "sap:deletable".
             #       I should map these in a way I'm in charge of the key on my dictionary.
             #       Non priority. This is ok at the moment.
-            e_updatable = entity.get('{http://www.sap.com/Protocols/SAPData}updatable')
-            e_creatable = entity.get('{http://www.sap.com/Protocols/SAPData}updatable')
-            e_deletable = entity.get('{http://www.sap.com/Protocols/SAPData}updatable')
-            
+
             self.__service[service_name]["attributes"][e_name] = {
                 "type": e_type,
-                "updatable": e_updatable,
-                "creatable": e_creatable,
-                "deletable": e_deletable
+                "updatable": entity.get('{http://www.sap.com/Protocols/SAPData}updatable', False),
+                "creatable": entity.get('{http://www.sap.com/Protocols/SAPData}updatable', False),
+                "deletable": entity.get('{http://www.sap.com/Protocols/SAPData}updatable', False)
             }
-        
+
         # Getting all entities and their properties
         for entity in xml_root.findall(".//edm:EntityType", xml_ns):
             e_name = entity.attrib.get("Name")
