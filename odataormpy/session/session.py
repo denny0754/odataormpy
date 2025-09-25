@@ -30,7 +30,7 @@ class ORMSession:
         :param http_port: HTTP port (port). Defaults to 443.
         """
         self.__base_host = base_host
-        self.__http_proto = http_proto  
+        self.__http_proto = http_proto
         self.__http_port = http_port
 
         if not self.__base_host or len(self.__base_host) < 1:
@@ -79,11 +79,10 @@ class ORMSession:
             data=data if isinstance(data, str) else None,
             json=data if isinstance(data, dict) else None
         )
-        
         response.raise_for_status()
 
         return response
-    
+
     def patch(self, endpoint : str, data : dict[Any, Any] | str | None) -> requests.Response:
         """Sends PATCH request to the OData source system.
 
@@ -102,12 +101,13 @@ class ORMSession:
         response.raise_for_status()
 
         return response
-    
+
     def delete(self, endpoint : str) -> requests.Response:
         """Sends DELETE request to the OData source system.
 
         :param endpoint: Endpoint of the OData source system.
-        :return: Response object. DELETE should return an empty response with status code 204, most of the times.
+        :return: Response object. DELETE should return an empty response with status code 204,
+                 most of the time.
         """
         req_url = f"{self.__base_url}/{endpoint}"
 

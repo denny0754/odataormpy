@@ -9,7 +9,7 @@ Change Log:
     2025-09-25 - Diego Vaccher - Initial creation
 """
 
-from orm_expression import ORMExpression
+from .orm_expression import ORMExpression
 
 class ORMObjectField:
     """Defines an OData object field. Used to interact with fields and

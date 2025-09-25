@@ -24,5 +24,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/denny0754/odataormpy"
 
+[project.optional-dependencies]
+dev = ["pylint", "requests"]
+
 [tool.setuptools.packages.find]
 where = ["."]

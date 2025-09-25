@@ -12,8 +12,8 @@ Change Log:
 from typing import Union
 from requests import Response, JSONDecodeError
 
-from orm_expression import ORMExpression
-from orm import ORM
+from .orm_expression import ORMExpression
+from .orm import ORM
 from odataormpy.exception import ORMExpressionException, ORMRuntimeException
 
 class ORMObject:
@@ -142,10 +142,18 @@ class ORMObject:
             raise ORMRuntimeException("Unable to parse response.") from exc
 
     def update(self) -> None:
+        """Updates the entity metadata.
+
+        :return:
+        """
         #TODO: Implement update logic
         pass
 
     def create(self) -> None:
+        """Creates a new entity record.
+
+        :return:
+        """
         #TODO: Implement creation logic
         pass
 
@@ -159,7 +167,7 @@ class ORMObject:
         :return: New ORMObject.
         """
         obj = ORMObject(orm_session, entity)
-        obj._data = json_data
+        # obj._data = json_data
 
         # Dynamically create attributes from JSON
         for key, value in json_data.items():
