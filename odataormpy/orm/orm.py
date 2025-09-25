@@ -16,27 +16,23 @@ class ORM:
 
     def __init__(self, session : ORMSession | None) -> None:
 
-        self.__session = session
+        self.orm_session = session
         '''
             Example __service structure:
             {
-                "c4codataapi": {
-                    "endpoint": "/sap/odata/v2",
+                "CorporateAccount": {
                     "attributes": {
-                        "CorporateAccount": {
-                            "updatable": True,
-                            "creatable": True,
-                            "deletable": False
-                        }
+                        "endpoint": "/sap/odata/v2",
+                        "updatable": True,
+                        "creatable": True,
+                        "deletable": False
                     },
                     "properties": {
-                        "CorporateAccount": {
-                            "ObjectID": {
-                                "key": True,
-                                "max_length": 70,
-                                "data_type": "Edm.String",
-                                "nullable": False
-                            }
+                        "ObjectID": {
+                            "key": True,
+                            "max_length": 70,
+                            "data_type": "Edm.String",
+                            "nullable": False
                         }
                     }
                 }
@@ -46,6 +42,7 @@ class ORM:
 
     def __parse_service_metadata(self, raw_metadata : str, service_name : str) -> None:
         import xml.etree.ElementTree as ET
+        #TODO: Update the structure of the service metadata
 
         xml_ns = {
             "edmx": "http://schemas.microsoft.com/ado/2007/06/edmx",
@@ -96,11 +93,15 @@ class ORM:
         #!TODO: lazy_load should be passed to the parser and used to compress the metadata for the objects.
         #       this will save a little bit of memory space in case the metadata file is huge.
 
-        if self.__session:
-            metadata_response = self.__session.get(f'{service_endpoint}/$metadata')
+        if self.orm_session:
+            metadata_response = self.orm_session.get(f'{service_endpoint}/$metadata')
             if metadata_response.ok:
                 self.__parse_service_metadata(metadata_response.content.decode('utf-8'), service_name)
                 self.__service[service_name]["endpoint"] = service_endpoint
+
+    @lru_cache(maxsize=None)
+    def get_entity_metadata(self, entity : str) -> dict:
+        return self.__service.get(entity, { })
 
     @lru_cache(maxsize=None)
     def list_entities(self, service_name : str) -> list[str]:

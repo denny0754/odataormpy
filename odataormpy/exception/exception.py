@@ -9,5 +9,14 @@ Change Log:
     2025-09-24 - Diego Vaccher - Initial creation
 """
 
-class ORMSessionException(Exception):
+class ORMException(Exception):
+    pass
+
+class ORMSessionException(ORMException):
+    pass
+
+class ORMExpressionException(ORMException):
+    pass
+
+class ORMRuntimeException(ORMException):
     pass
