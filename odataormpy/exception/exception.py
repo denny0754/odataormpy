@@ -10,13 +10,25 @@ Change Log:
 """
 
 class ORMException(Exception):
+    """
+    Generic ORM Exception
+    """
     pass
 
 class ORMSessionException(ORMException):
+    """
+    ORM Session Exception
+    """
     pass
 
 class ORMExpressionException(ORMException):
+    """
+    ORM Expression Exception
+    """
     pass
 
 class ORMRuntimeException(ORMException):
+    """
+    ORM Runtime Exception
+    """
     pass

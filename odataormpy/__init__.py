@@ -1,5 +1,7 @@
-from .exception import *
-from .session import *
+# pylint: disable=missing-module-docstring
+
+from odataormpy.exception import ORMSessionException
+from odataormpy.session import ORMSession
 
 __all__ = [
     # Session
