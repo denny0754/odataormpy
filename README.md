@@ -8,6 +8,10 @@
 
 `odataormpy` is a Python3.x library created to easily access OData objects easily without writing any HTTP requests code.
 
+## Status
+
+[![Pylint](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml/badge.svg?branch=v0.1.0-main)](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml)
+
 ## Examples
 
 ```python
