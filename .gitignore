@@ -71,6 +71,7 @@ poetry.lock
 .vscode/
 .idea/
 *.iml
+.vs/
 
 # macOS
 .DS_Store
