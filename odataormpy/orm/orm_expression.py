@@ -18,7 +18,7 @@ class ORMExpression:
 
         :param expr: Expression object.
         """
-        self.__expr = expr
+        self._expr = expr
 
     def __and__(self, other : "ORMExpression"):
         """Combines two expressions and ands them.
@@ -26,7 +26,7 @@ class ORMExpression:
         :param other: ORMExpression object.
         :return: Combined expression object.
         """
-        return ORMExpression(f"({self.__expr}) and ({other.__expr})")
+        return ORMExpression(f"({self._expr}) and ({other._expr})")
 
     def __or__(self, other : "ORMExpression"):
         """Combines two expressions and ors them.
@@ -34,11 +34,11 @@ class ORMExpression:
         :param other: ORMExpression object.
         :return: Combined expression object.
         """
-        return ORMExpression(f"({self.__expr}) or ({other.__expr})")
+        return ORMExpression(f"({self._expr}) or ({other._expr})")
 
     def __str__(self):
         """Returns the string representation of the expression.
 
         :return: String representation of the expression.
         """
-        return self.__expr
+        return self._expr

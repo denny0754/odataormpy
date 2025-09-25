@@ -12,9 +12,9 @@ Change Log:
 from typing import Union
 from requests import Response, JSONDecodeError
 
+from ..exception import ORMExpressionException, ORMRuntimeException
 from .orm_expression import ORMExpression
 from .orm import ORM
-from odataormpy.exception import ORMExpressionException, ORMRuntimeException
 
 class ORMObject: # pylint: disable=too-many-instance-attributes
     """Generic ORM Object. Helps in querying, creating or updating entities.
