@@ -63,8 +63,8 @@ class ORMObject: # pylint: disable=too-many-instance-attributes
         # The actual response won't be available to the user, and in order
         # to manage it, we need to decider whether to use json or xml.
         # JSON is easier to parse.
-        if not fmt in ["json", "xml"]:
-            raise ORMException(f"Format must be 'json' or 'xml'")
+        if fmt not in ["json", "xml"]:
+            raise ORMException("Format must be 'json' or 'xml'")
         self.__parameters["$format"] = fmt
 
         return self
@@ -105,12 +105,21 @@ class ORMObject: # pylint: disable=too-many-instance-attributes
         self.__dirty = True
 
     def get_parameters(self) -> dict:
+        """Returns parameters for the HTTP request.
+
+        """
         return self.__parameters
 
     def get_service_name(self) -> str:
+        """Returns the service name for the HTTP request.
+
+        """
         return self.__metadata.get("__service", "")
 
     def get_entity_name(self) -> str:
+        """Returns the entity name for the HTTP request.
+
+        """
         return self.__entity
 
     def dirty(self) -> bool:

@@ -87,11 +87,11 @@ class ORMMetadata:
 
         :return:
         """
-        for key in self.__entities.keys():
-            data = json.dumps(self.__entities[key])
+        for key, value in self.__entities.items():
+            data = json.dumps(value)
             compress_data = lzma.compress(data.encode('utf-8'))
-            self.__entities[key].pop("attributes")
-            self.__entities[key].pop("properties")
+            value.pop("attributes")
+            value.pop("properties")
             self.__entities[key] = {
                 "__lazy_loaded": compress_data
             }
@@ -148,8 +148,7 @@ class ORMMetadata:
             if "__lazy_loaded" in self.__entities[key]:
                 self.__decompress_lazy(key)
             return self.__entities[key]
-        else:
-            raise KeyError(f"Entity '{key}' not found.")
+        raise KeyError(f"Entity '{key}' not found.")
 
     def __repr__(self) -> str:
         """String representation of an entity
@@ -157,11 +156,3 @@ class ORMMetadata:
         :return: A string representation of the object.
         """
         return json.dumps(self.__entities, indent=4)
-
-    def __getattr__(self, entity_name) -> ORMObject:
-        """Dynamically returns an ORMObject for the given entity name."""
-        if entity_name in self.__entities:
-            # Return an ORMObject for the entity
-            return ORMObject(self.__entities[entity_name])
-        else:
-            raise AttributeError(f"Entity '{entity_name}' not found in metadata.")
