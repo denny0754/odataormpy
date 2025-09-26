@@ -97,32 +97,34 @@ class ORM:
                     return int(response.content)
                 except ValueError as exc:
                     raise ORMException(f"Invalid response from {endpoint}") from exc
-        else:
-            params.pop("$count")
-            # For now, we hard code "json" as the default format accepted as response.
-            params['$format'] = "json"
-            response = self.__orm_session.get(
-                endpoint=f'{endpoint}/{orm_object.get_entity_name()}',
-                params=params
-            )
+            else:
+                raise ORMException(f"Invalid response from {endpoint}")
 
-            if response.ok:
-                try:
-                    orm_objects : list[ORMObject] = []
-                    j_result = response.json().get("d", { }).get("results", { })
-                    for obj_data in j_result:
-                        orm_object_loc : ORMObject = ORMObject(
-                            entity_name,
-                            self.__services[service_name][entity_name])
+        params.pop("$count")
+        # For now, we hard code "json" as the default format accepted as response.
+        params['$format'] = "json"
+        response = self.__orm_session.get(
+            endpoint=f'{endpoint}/{orm_object.get_entity_name()}',
+            params=params
+        )
 
-                        for key in obj_data.keys():
-                            try:
-                                orm_object_loc[key] = obj_data[key]
-                            except KeyError as exc:
-                                raise ORMException(
-                                    f"Invalid field name returned from {endpoint}. {key}") from exc
-                        orm_objects.append(orm_object_loc)
-                except JSONDecodeError as exc:
-                    raise ORMException(f"Invalid response from {endpoint}") from exc
-                return orm_objects
-        return []
+        if not response.ok:
+            return []
+        try:
+            orm_objects : list[ORMObject] = []
+            j_result = response.json().get("d", { }).get("results", { })
+            for obj_data in j_result:
+                orm_object_loc : ORMObject = ORMObject(
+                    entity_name,
+                    self.__services[service_name][entity_name])
+
+                for key in obj_data.keys():
+                    try:
+                        orm_object_loc[key] = obj_data[key]
+                    except KeyError as exc:
+                        raise ORMException(
+                            f"Invalid field name returned from {endpoint}. {key}") from exc
+                orm_objects.append(orm_object_loc)
+        except JSONDecodeError as exc:
+            raise ORMException(f"Invalid response from {endpoint}") from exc
+        return orm_objects
