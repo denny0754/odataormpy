@@ -9,167 +9,113 @@ Change Log:
     2025-09-24 - Diego Vaccher - Initial creation
 """
 
-from typing import Union
-from requests import Response, JSONDecodeError
+from typing import Union, Any
 
-from ..exception import ORMExpressionException, ORMRuntimeException
-from .orm_expression import ORMExpression
-from .orm import ORM
+from ..exception import ORMException
 
 class ORMObject: # pylint: disable=too-many-instance-attributes
     """Generic ORM Object. Helps in querying, creating or updating entities.
     Dynamically generated for each individual entity record when an execution is performed.
     """
-    def __init__(self, orm_session : ORM, entity : str):
-        self.__orm_session = orm_session
-        self.__entity = entity
+    def __init__(self, entity_name : str, entity_metadata : dict):
+        self.__entity = entity_name
+        self.__metadata = entity_metadata
+        self.__parameters : dict = { }
+        self.__dirty = False
+        self.__load_metadata()
 
-        self.__filter = []
-        self.__select = []
-        self.__orderby = []
+    def __load_metadata(self) -> None:
+        """Loads the metadata and builds the attributes based on it.
 
-        self.__format = "json"
-
-        self.__skip = None
-        self.__top = None
-
-    def filter(self, *expression) -> "ORMObject":
-        """Sets the $filter parameter using expressions.
-
-        :param expression: Expression or condition to apply for the fetch.
-        :return: Itself.
+        :return: None
         """
-        for expr in expression:
-            if isinstance(expr, ORMExpression):
-                self.__filter.append(expr)
-            else:
-                raise ORMExpressionException(
-                    f"Unknown expression type or format. Received {type(expr)} - {expr}"
-                )
+        for key in self.__metadata.get("properties", {}).keys():
+            # Setting to None by default.
+            setattr(self, key, None)
+
+    def top(self, count : int) -> "ORMObject":
+        """Sets the maximum number of results to return.
+
+        :param count: Maximum number of entities to return.
+        :return:
+        """
+        self.__parameters["$top"] = count
+
         return self
 
     def select(self, *fields) -> "ORMObject":
-        """Sets the $select parameter using expressions.
+        """Sets the fields to be selected when calling the OData.
 
         :param fields: Fields to be selected.
-        :return: Itself.
+        :return:
         """
-        self.__select.extend(fields)
-        return self
+        self.__parameters["$select"].extend(fields)
 
-    def top(self, count) -> "ORMObject":
-        """Sets the maximum number of records to return.
-
-        :param count: Number of records to return.
-        :return: Itself.
-        """
-        self.__top = count
-        return self
-
-    def skip(self, count) -> "ORMObject":
-        """Sets the number of records to skip.
-
-        :param count: Number of records to skip.
-        :return: Itself.
-        """
-        self.__skip = count
         return self
 
     def format(self, fmt : str = "json") -> "ORMObject":
-        """Sets the format of the result. Available formats: xml or json.
+        """Sets the format of the returned objects.
 
-        :param fmt: Format of the result. Default is json.
-        :return: Itself.
+        :param fmt: Format to use.
+        :return:
         """
-        self.__format = fmt
+        # Does it make actual sense to let the user decide which format to use?
+        # The actual response won't be available to the user, and in order
+        # to manage it, we need to decider whether to use json or xml.
+        # JSON is easier to parse.
+        if not fmt in ["json", "xml"]:
+            raise ORMException(f"Format must be 'json' or 'xml'")
+        self.__parameters["$format"] = fmt
+
         return self
 
-    def __build_params(self):
-        """Builds the query parameters.
+    def count(self) -> "ORMObject":
+        """Sets the number of results to return.
 
-        :return: Parameters for the HTTP request.
+        :return: None
         """
-        params : dict = { }
-        if self.__orderby:
-            params["$orderby"] = self.__orderby
-        if self.__skip:
-            params["$skip"] = self.__skip
-        if self.__filter:
-            #TODO: Are filters being parsed already? If so, this is ok!
-            params["$filter"] = self.__filter
-        if self.__select:
-            params["$select"] = self.__select
-        if self.__format:
-            params["$format"] = self.__format
-        if self.__top:
-            params["$top"] = self.__top
-        return params
+        # This parameter is special, as it doesn't require any value assignment
+        # but all other parameters should not be set.
+        # So, when set, the others needs to be ignored(deleted) from the
+        # HTTP query request.
+        self.__parameters["$count"] = True
 
-    def execute(self) -> Union[list["ORMObject"], "ORMObject"]:
-        """Sends the HTTP request to the source system and returns the result.
+        return self
 
-        :return: Single or multiple records/ORMObjects built with the structure
-                 requested in `select`. If none, all fields will be returned.
-        """
-        entity_metadata = self.__orm_session.get_entity_metadata(self.__entity)
+    def __getitem__(self, key : str) -> Union[Any, None]:
+        """Retrieve a field using the brackets.
 
-        endpoint = entity_metadata.get("attributes", { }).get("endpoint", None)
-
-        if endpoint is None:
-            raise ORMRuntimeException(f"Invalid endpoint. Unable to continue. {self}")
-
-        params = self.__build_params()
-
-        response : Response = self.__orm_session.orm_session.get(
-            endpoint=endpoint,
-            params=params
-        )
-
-        try:
-            obj_data = response.json().get('d', { }).get('results', [ ])
-            if len(obj_data) == 0:
-                return []
-
-            objects : list["ORMObject"] = []
-            for obj in obj_data:
-                objects.append(ORMObject.__from_json(self.__orm_session, self.__entity, obj))
-
-            if len(objects) == 1:
-                return objects[0]
-
-            return objects
-
-        except JSONDecodeError as exc:
-            raise ORMRuntimeException("Unable to parse response.") from exc
-
-    def update(self) -> None:
-        """Updates the entity metadata.
-
+        :param key: Field to retrieve from this instance
         :return:
         """
-        #TODO: Implement update logic
+        if getattr(self, key) is None or key not in self.__metadata.get("properties", { }).keys():
+            raise ORMException(f"Field {key} requested does not exists or is invalid. {key}")
+        return getattr(self, key)
 
-    def create(self) -> None:
-        """Creates a new entity record.
+    def __setitem__(self, key : str, value : Union[Any, None]):
+        """Set a field using the brackets.
 
+        :param key: Field to set a value for.
+        :param value: Fields's value to set.
         :return:
         """
-        #TODO: Implement creation logic
+        if getattr(self, key) is None or key not in self.__metadata.get("properties", { }).keys():
+            raise ORMException(f"Field {key} requested does not exists or is invalid. {key}")
+        setattr(self, key, value)
+        self.__dirty = True
 
-    @staticmethod
-    def __from_json(orm_session: ORM, entity: str, json_data: dict) -> "ORMObject":
-        """Builds a new ORMObject from JSON data.
+    def get_parameters(self) -> dict:
+        return self.__parameters
 
-        :param orm_session: ORM session object.
-        :param entity: Entity name.
-        :param json_data: JSON data.
-        :return: New ORMObject.
+    def get_service_name(self) -> str:
+        return self.__metadata.get("__service", "")
+
+    def get_entity_name(self) -> str:
+        return self.__entity
+
+    def dirty(self) -> bool:
+        """Returns True if the records has been tampered.
+
+        :return: True if the records has been tampered. False otherwise.
         """
-        obj = ORMObject(orm_session, entity)
-        # obj._data = json_data
-
-        # Dynamically create attributes from JSON
-        for key, value in json_data.items():
-            setattr(obj, key, value)
-
-        return obj
+        return self.__dirty

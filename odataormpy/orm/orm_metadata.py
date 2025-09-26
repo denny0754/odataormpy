@@ -9,9 +9,12 @@ Change Log:
     2025-09-26 - Diego Vaccher - Initial creation
 """
 
+from typing import Union
 import xml.etree.ElementTree as ET
 import lzma
 import json
+
+from .orm_object import ORMObject
 
 class ORMMetadata:
     """ORM Metadata storage.
@@ -123,6 +126,17 @@ class ORMMetadata:
         if self.__lazy_load:
             self.__compress_lazy()
 
+    def get(self, entity_name) -> Union[dict, None]:
+        """Returns the entity metadata. If not found, None is returned.
+
+        :param entity_name: Entity name to get.
+        :return:
+        """
+        if entity_name in self.__entities:
+            self.__decompress_lazy(entity_name)
+            return self.__entities[entity_name]
+        return None
+
     def __getitem__(self, key: str):
         """Allow read-only access to entities using ['entity_name'].
 
@@ -143,3 +157,11 @@ class ORMMetadata:
         :return: A string representation of the object.
         """
         return json.dumps(self.__entities, indent=4)
+
+    def __getattr__(self, entity_name) -> ORMObject:
+        """Dynamically returns an ORMObject for the given entity name."""
+        if entity_name in self.__entities:
+            # Return an ORMObject for the entity
+            return ORMObject(self.__entities[entity_name])
+        else:
+            raise AttributeError(f"Entity '{entity_name}' not found in metadata.")
