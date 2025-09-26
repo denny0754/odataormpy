@@ -14,8 +14,6 @@ import xml.etree.ElementTree as ET
 import lzma
 import json
 
-from .orm_object import ORMObject
-
 class ORMMetadata:
     """ORM Metadata storage.
 
