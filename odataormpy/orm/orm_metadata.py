@@ -72,6 +72,13 @@ class ORMMetadata:
         :return:
         """
         entity_name = entity_property.attrib.get("Name")
+
+        key_element = entity_property.find("edm:Key", self.__xml_namespaces)
+        if key_element is not None:
+            for prop_ref in key_element.findall("edm:PropertyRef", self.__xml_namespaces):
+                key_name = prop_ref.attrib.get("Name")
+                self.__entities[entity_name]["properties"]["__keys"].append(key_name)
+
         for prop in entity_property.findall("edm:Property", self.__xml_namespaces):
             ep_name = prop.attrib.get("Name")
             self.__entities[entity_name]["properties"][ep_name] = {

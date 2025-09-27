@@ -8,7 +8,7 @@ Description:
 Change Log:
     2025-09-24 - Diego Vaccher - Initial creation
 """
-
+import xml
 from typing import Union, Any
 
 from ..exception import ORMException
@@ -128,3 +128,18 @@ class ORMObject: # pylint: disable=too-many-instance-attributes
         :return: True if the records has been tampered. False otherwise.
         """
         return self.__dirty
+
+    def to_json(self) -> dict:
+        """Returns the JSON representation of the object.
+        :return: JSON representation of the object.
+        """
+        properties = { }
+        for key in self.__metadata.get("properties", { }).keys():
+            properties[key] = getattr(self, key)
+        return properties
+
+    def cleanup(self) -> None:
+        """Cleanup the ORMObject
+
+        """
+        self.__dirty = False

@@ -139,3 +139,34 @@ class ORM:
         for orm_object in orm_objects:
             output_list.append(self.fetch(orm_object))
         return output_list
+
+    def update(self, orm_object : ORMObject, force_update : bool = False) -> ORMObject:
+        """Updates the given ORMObject.
+
+        :param orm_object: ORMObject to be updated.
+        :param force_update: If true, force the update even if the ORMObject is not dirty.
+        """
+        # If the object has not been actually updated and an update is not forced
+        # we simply return the object itself.
+        if not force_update and not orm_object.dirty():
+            return orm_object
+
+        endpoint = self.__service_endpoints.get(orm_object.get_service_name(), "")
+        entity_name = orm_object.get_entity_name()
+
+        payload = orm_object.to_json()
+
+        payload = {key: value for key, value in payload.items() if value is not None}
+
+        #TODO: "ObjectID" being hardcoded is not ideal! Maybe we should use a callback or something global?
+        # We already have `__keys` on the metadata. We need those and probably a global call back to build the URL?
+        response = self.__orm_session.patch(
+            endpoint=f'{endpoint}/{entity_name}({orm_object["ObjectID"]})',
+            data=payload
+        )
+
+        if response.ok:
+            orm_object.cleanup()
+            return orm_object
+
+        return orm_object
