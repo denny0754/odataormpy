@@ -88,7 +88,7 @@ class ORMObject: # pylint: disable=too-many-instance-attributes
         :param key: Field to retrieve from this instance
         :return:
         """
-        if getattr(self, key) is None or key not in self.__metadata.get("properties", { }).keys():
+        if key not in self.__metadata.get("properties", { }).keys():
             raise ORMException(f"Field {key} requested does not exists or is invalid. {key}")
         return getattr(self, key)
 
@@ -99,7 +99,7 @@ class ORMObject: # pylint: disable=too-many-instance-attributes
         :param value: Fields's value to set.
         :return:
         """
-        if getattr(self, key) is None or key not in self.__metadata.get("properties", { }).keys():
+        if key not in self.__metadata.get("properties", { }).keys():
             raise ORMException(f"Field {key} requested does not exists or is invalid. {key}")
         setattr(self, key, value)
         self.__dirty = True

@@ -47,7 +47,7 @@ class ORMSession:
             "Content-Type": "application/json"
         })
 
-    def get(self, endpoint : str, params : Optional[dict, None]) -> requests.Response:
+    def get(self, endpoint : str, params : Optional[dict]) -> requests.Response:
         """Sends GET request to the OData source system.
 
         :param endpoint: Endpoint of the OData source system.
