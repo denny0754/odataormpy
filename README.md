@@ -87,11 +87,13 @@ orm.close()
 
 ## 📦 Project Status
 
-[![Pylint](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml/badge.svg?branch=v0.1.0-main)](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml)  
-[![PyPI Version](https://img.shields.io/pypi/v/odataormpy.svg)](https://pypi.org/project/odataormpy/)  
-[![Python Versions](https://img.shields.io/pypi/pyversions/odataormpy.svg)](https://pypi.org/project/odataormpy/)
+[![Pylint](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml/badge.svg?branch=v0.1.0-main)](https://github.com/denny0754/odataormpy/actions/workflows/pylint.yml) 
+[![PyPI Version](https://img.shields.io/pypi/v/odataormpy.svg)](https://pypi.org/project/odataormpy/) 
+[![Python Versions](https://img.shields.io/pypi/pyversions/odataormpy.svg)](https://pypi.org/project/odataormpy/) 
+[![CI - Tests and Coverage](https://github.com/denny0754/odataormpy/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/denny0754/odataormpy/actions/workflows/unit_tests.yml)
 
 ---
+
 
 ## 🔮 Roadmap
 
