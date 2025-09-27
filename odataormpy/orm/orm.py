@@ -128,3 +128,14 @@ class ORM:
         except JSONDecodeError as exc:
             raise ORMException(f"Invalid response from {endpoint}") from exc
         return orm_objects
+
+    def fetch_many(self, orm_objects : list[ORMObject]) -> list[Union[ORMObject, int]]:
+        """Fetches the given ORMObjects from the ORM. Uses `ORM.fetch()`
+        to fetch the list of ORMObjects.
+
+        :param orm_objects: List of ORMObjects to fetch.
+        """
+        output_list : list[Union[ORMObject, int]] = []
+        for orm_object in orm_objects:
+            output_list.append(self.fetch(orm_object))
+        return output_list
